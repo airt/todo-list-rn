@@ -1,0 +1,5 @@
+*.log
+.expo
+.vscode
+yarn.lock
+node_modules
