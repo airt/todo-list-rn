@@ -1,6 +1,14 @@
 {
   "expo": {
-    "name": "Circular",
-    "sdkVersion": "25.0.0"
+    "name": "Todo List",
+    "slug": "todo-list",
+    "sdkVersion": "25.0.0",
+    "ios": {
+      "bundleIdentifier": "r.x.t"
+    },
+    "android": {
+      "package": "r.x.t",
+      "permissions": []
+    }
   }
 }
