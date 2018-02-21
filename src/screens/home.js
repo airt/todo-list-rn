@@ -1,46 +1,21 @@
-import uuid from 'uuid/v4'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Alert, AsyncStorage, StyleSheet, View } from 'react-native'
 import { Divider, Footer, Header, Input, List } from '../components'
 
-const ITEMS_STORAGE_KEY = 'items'
-
-const newItem = label => ({ id: uuid(), label, completed: false })
-
+@connect(
+  state => ({
+    items: state.home.items,
+  }),
+  dispatch => ({
+    addItem: label => dispatch({ type: 'home/addItem', payload: label }),
+    toggleItem: id => dispatch({ type: 'home/toggleItem', payload: id }),
+    removeItem: id => dispatch({ type: 'home/removeItem', payload: id }),
+    removeCompletedItems: () => dispatch({ type: 'home/removeCompletedItems' }),
+    clearItems: () => dispatch({ type: 'home/clearItems' }),
+  }),
+)
 export class HomeScreen extends Component {
-  state = {
-    items: [newItem('Press to complete'), newItem('Press × to remove')],
-  }
-
-  componentDidMount = () =>
-    AsyncStorage.getItem(ITEMS_STORAGE_KEY).then(
-      value => value && this.setState({ items: JSON.parse(value) }),
-    )
-
-  componentDidUpdate = () =>
-    AsyncStorage.setItem(ITEMS_STORAGE_KEY, JSON.stringify(this.state.items))
-
-  addItem = label =>
-    this.setState({ items: [newItem(label), ...this.state.items] })
-
-  toggleItem = id =>
-    this.setState({
-      items: this.state.items.map(
-        item =>
-          item.id !== id ? item : { ...item, completed: !item.completed },
-      ),
-    })
-
-  removeItem = id =>
-    this.setState({ items: this.state.items.filter(item => item.id !== id) })
-
-  removeCompletedItems = () =>
-    this.setState({
-      items: this.state.items.filter(item => !item.completed),
-    })
-
-  clearItems = () => this.setState({ items: [] })
-
   handleInputSubmit = text => {
     if (text.startsWith(':')) {
       switch (text.slice(1)) {
@@ -50,7 +25,7 @@ export class HomeScreen extends Component {
         }
         case 'c': {
           AsyncStorage.clear()
-          this.clearItems()
+          this.props.clearItems()
           break
         }
         case 'r': {
@@ -58,12 +33,12 @@ export class HomeScreen extends Component {
           break
         }
         default: {
-          this.addItem(text.slice(1))
+          this.props.addItem(text.slice(1))
           break
         }
       }
     } else {
-      this.addItem(text)
+      this.props.addItem(text)
     }
   }
 
@@ -74,12 +49,12 @@ export class HomeScreen extends Component {
       <Input onSubmit={this.handleInputSubmit} placeholder="New Item" />
       <Divider />
       <List
-        items={this.state.items}
-        removeItem={this.removeItem}
-        toggleItem={this.toggleItem}
+        items={this.props.items}
+        removeItem={this.props.removeItem}
+        toggleItem={this.props.toggleItem}
       />
       <Divider />
-      <Footer removeCompletedItems={this.removeCompletedItems} />
+      <Footer removeCompletedItems={this.props.removeCompletedItems} />
     </View>
   )
 }
